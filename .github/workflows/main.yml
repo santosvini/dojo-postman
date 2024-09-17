@@ -1,0 +1,35 @@
+name: Postman API
+
+on:
+  push
+
+jobs:
+  build-ubuntu:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4.0.3
+        with:
+          node-version: 20
+
+      - name: Check versions of Newman and Node
+        run: |
+           newman --version
+           node --version
+
+      - name: Install Newman-Reporter-HtmlExtra
+        run: sudo npm install -g newman-reporter-htmlextra
+
+      - name: Execute collection
+        run: newman run Convergentes.postman_collection.json -g workspace.postman_globals.json -e Convergentes.postman_environment.json -r --delay-request 1 --reporters cli,htmlextra --reporter-htmlextra-export report.html
+
+      - name: Archive production artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Report API
+          path: report.html
