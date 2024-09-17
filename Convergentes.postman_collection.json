@@ -1,0 +1,597 @@
+{
+	"info": {
+		"_postman_id": "5eadff00-3674-403c-99ad-77cd147900c1",
+		"name": "Convergentes",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22231816"
+	},
+	"item": [
+		{
+			"name": "Login Admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.globals.set(\"tokenAdmin\", JSON.parse(responseBody).token);",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Verify token is valid\", () => {",
+							"    pm.expect(JSON.parse(responseBody).token).to.exist;",
+							"});",
+							"",
+							"pm.test(\"Welcome Message\", () => {",
+							"    pm.environment.set(\"msgAdmin\", JSON.parse(responseBody).msg);",
+							"});",
+							"",
+							"pm.test(\"Verify ID Admin\", () => {",
+							"    pm.environment.set(\"IDAdmin\", JSON.parse(responseBody).user._id);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"mail\": \"{{mailAdmin}}\",\r\n    \"password\": \"{{passAdmin}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}login",
+					"host": [
+						"{{url}}login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register New User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", () => {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verify the message of register\", () => {\r",
+							"    pm.environment.set(\"Message\", `Olá ${pm.environment.get(\"FullName\")}, cadastro realizado com sucesso.`)\r",
+							"})\r",
+							"\r",
+							"pm.test(\"User ID\", () => {\r",
+							"    pm.expect(pm.environment.set(\"IDUser\", \r",
+							"        JSON.parse(responseBody).user._id))\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"function firstname() {\r",
+							"    const names = ['Alice', 'Miguel', 'Sophia', 'Arthur', 'Helena', 'Bernardo', 'Valentina', 'Heitor', 'Laura', 'Davi', 'Isabella', 'Lorenzo', 'Manuela', 'Theo', 'Luiza', 'Pedro', 'Giovanna', 'Gabriel', 'Julia'];\r",
+							"    \r",
+							"    const randomName = names[Math.floor(Math.random() * names.length)]\r",
+							"    return randomName\r",
+							"}\r",
+							"pm.environment.set(\"FirstName\", firstname())\r",
+							"\r",
+							"function lastname() {\r",
+							"    const lastnames = ['Silva', 'Santos', 'Oliveira', 'Souza', 'Rodrigues', 'Almeida', 'Lima', 'Ferreira', 'Pereira', 'Carvalho', 'Goncalves', 'Ribeiro', 'Costa', 'Araujo', 'Martins', 'Fernandes'];\r",
+							"\r",
+							"    const randomLastName = lastnames[Math.floor(Math.random() * lastnames.length)]\r",
+							"    return randomLastName\r",
+							"}\r",
+							"pm.environment.set(\"LastName\", lastname())\r",
+							"\r",
+							"pm.environment.set(\"FullName\", \r",
+							"    pm.environment.get(\"FirstName\") + \" \" + pm.environment.get(\"LastName\"))\r",
+							"\r",
+							"pm.environment.set(\"Mail\", pm.environment.get(\"FullName\").toLowerCase().replace(/\\s/g, \"\").normalize(\"NFD\").replace(/[\\u0300-\\u036f]/g, \"\") + '@qacoders.com.br')\r",
+							"\r",
+							"function generatePassword() {\r",
+							"    const chars = \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%\";\r",
+							"    const comprimentoMinimo = 8;\r",
+							"    const comprimentoMaximo = 12;\r",
+							"    let senhaArray = [];\r",
+							" \r",
+							"    senhaArray.push(chars[Math.floor(Math.random() * 26)]); \r",
+							"    senhaArray.push(chars[26 + Math.floor(Math.random() * 26)]); \r",
+							"    senhaArray.push(chars[52 + Math.floor(Math.random() * 10)]); \r",
+							"    senhaArray.push(chars[62 + Math.floor(Math.random() * 4)]); \r",
+							"    \r",
+							"    const comprimentoRestante = Math.max(comprimentoMinimo - senhaArray.length, comprimentoMaximo - senhaArray.length);\r",
+							"    \r",
+							"    for (let i = 0; i < comprimentoRestante; i++) {\r",
+							"        senhaArray.push(chars[Math.floor(Math.random() * chars.length)]);\r",
+							"    }\r",
+							"    return shuffleString(senhaArray.join(\"\"));\r",
+							"}\r",
+							"\r",
+							"function shuffleString(string) {\r",
+							"  return string.split(\"\").sort(() => Math.random() - 0.5).join(\"\");\r",
+							"}\r",
+							"pm.environment.set(\"passUser\", generatePassword());\r",
+							"\r",
+							"function randomCpf() {\r",
+							"    let randomCpf = '';\r",
+							"   \r",
+							"    for (let i = 0; i < 11; i++) {\r",
+							"        randomCpf += Math.floor(Math.random() * 10).toString();\r",
+							"    }\r",
+							"    return randomCpf;\r",
+							"}\r",
+							"pm.environment.set(\"CPF\", randomCpf());\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"fullName\": \"{{FullName}}\",\r\n  \"mail\": \"{{Mail}}\",\r\n  \"password\": \"{{passUser}}\",\r\n  \"accessProfile\": \"ADMIN\",\r\n  \"cpf\": \"{{CPF}}\",\r\n  \"confirmPassword\": \"{{passUser}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}user",
+					"host": [
+						"{{url}}user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.globals.set(\"tokenUser\", JSON.parse(responseBody).token);\r",
+							"\r",
+							"// pm.sendRequest(requestOptions, (err, response) => {\r",
+							"//     if (err) {\r",
+							"//         console.log(err);\r",
+							"//     } else {\r",
+							"//         console.log(response);\r",
+							"//     }\r",
+							"\r",
+							"//     // console.log(err ? err : response.json());\r",
+							"//     // if (!err) {\r",
+							"//     //     pm.globals.set(\"tokenUser\", response.json().token);\r",
+							"//     // }\r",
+							"// });\r",
+							"\r",
+							"pm.test(\"Response status code is 200\", function () {\r",
+							"  pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"mail\": \"{{Mail}}\",\r\n    \"password\": \"{{passUser}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}login",
+					"host": [
+						"{{url}}login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Count Users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}user/count",
+					"host": [
+						"{{url}}user"
+					],
+					"path": [
+						"count"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Users",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}user/",
+					"host": [
+						"{{url}}user"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List User by ID",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}user/{{IDUser}}",
+					"host": [
+						"{{url}}user"
+					],
+					"path": [
+						"{{IDUser}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update data user by ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "key",
+							"value": "authorization",
+							"type": "string"
+						},
+						{
+							"key": "in",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "value",
+							"value": "{{tokenUser}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"fullName\": \"Pedro Manoel Pereira\",\r\n    \"mail\": \"pmanoel@qacoders.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}user/{{IDUser}}",
+					"host": [
+						"{{url}}user"
+					],
+					"path": [
+						"{{IDUser}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update pass user by ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "in",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "authorization",
+							"type": "string"
+						},
+						{
+							"key": "value",
+							"value": "{{tokenUser}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"password\": \"8761@Test\",\r\n  \"confirmPassword\": \"8761@Test\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}user/password/{{IDUser}}",
+					"host": [
+						"{{url}}user"
+					],
+					"path": [
+						"password",
+						"{{IDUser}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update status user by ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "in",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "authorization",
+							"type": "string"
+						},
+						{
+							"key": "value",
+							"value": "{{tokenAdmin}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"status\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}user/status/{{IDUser}}",
+					"host": [
+						"{{url}}user"
+					],
+					"path": [
+						"status",
+						"{{IDUser}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete data user by ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}user/{{IDUser}}",
+					"host": [
+						"{{url}}user"
+					],
+					"path": [
+						"{{IDUser}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "in",
+				"value": "header",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "authorization",
+				"type": "string"
+			},
+			{
+				"key": "value",
+				"value": "{{tokenAdmin}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
